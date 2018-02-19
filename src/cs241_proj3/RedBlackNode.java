@@ -39,4 +39,18 @@ public class RedBlackNode<T> extends BinaryNode<T> {
 	{
 		return black;
 	}
+	
+	@Override
+	/**
+	 * copies one node to another
+	 * @return the new root
+	 */
+	public RedBlackNode<T> copy() {
+		RedBlackNode<T> newRoot = new RedBlackNode<>(data);
+		if (leftChild != null)
+			newRoot.setLeftChild(leftChild.copy());
+		if (rightChild != null)
+			newRoot.setRightChild(rightChild.copy());
+		return newRoot;
+	}
 }
