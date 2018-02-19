@@ -9,9 +9,9 @@ package cs241_proj3;
  */
 public class BinaryNode<T> {
 
-	private T data;
-	private BinaryNode<T> leftChild;
-	private BinaryNode<T> rightChild;
+	protected T data;
+	protected BinaryNode<T> leftChild;
+	protected BinaryNode<T> rightChild;
 
 	public BinaryNode() {
 		this(null);
