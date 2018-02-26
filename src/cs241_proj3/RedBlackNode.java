@@ -10,8 +10,16 @@ package cs241_proj3;
  */
 public class RedBlackNode<T> extends BinaryNode<T> {
 
-	protected boolean black;
+	protected boolean red;
+	private int size;
 	
+	/**
+	 * @param black the black to set
+	 */
+	public void setRed(boolean red) {
+		this.red = red;
+	}
+
 	public RedBlackNode()
 	{
 		this(null);
@@ -27,19 +35,40 @@ public class RedBlackNode<T> extends BinaryNode<T> {
 		this(data, leftChild, rightChild, true);
 	}
 	
-	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean black)
+	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean red)
+	{
+		this(data, leftChild, rightChild, red, 0);
+	}
+	
+	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean red, int size)
 	{
 		this.data = data;
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
-		this.black = black;
+		this.red = red;
+		this.size = size;
+		
 	}
 	
-	public boolean isBlack ()
+	public boolean isRed ()
 	{
-		return black;
+		return red;
 	}
 	
+	/**
+	 * @return the size
+	 */
+	public int getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+
 	@Override
 	/**
 	 * copies one node to another
@@ -52,5 +81,45 @@ public class RedBlackNode<T> extends BinaryNode<T> {
 		if (rightChild != null)
 			newRoot.setRightChild(rightChild.copy());
 		return newRoot;
+	}
+	
+	@Override
+	/**
+	 * retrieves the value of the left child
+	 * @return returns the value of the left child
+	 */
+	public RedBlackNode<T> getLeftChild()
+	{
+		return (RedBlackNode<T>) leftChild;
+	}
+	
+	@Override
+	/**
+	 * checks to see if the node has a left child
+	 * @return true if the left child exists, else false
+	 */
+	public boolean hasLeftChild()
+	{
+		return leftChild != null;
+	}
+	
+	@Override
+	/**
+	 * retrieves the value of the right child
+	 * @return returns the value of the right child
+	 */
+	public RedBlackNode<T> getRightChild()
+	{
+		return (RedBlackNode<T>) rightChild;
+	}
+	
+	@Override
+	/**
+	 * checks to see if the node has a right child
+	 * @return true if the right child exists, else false
+	 */
+	public boolean hasRightChild()
+	{
+		return rightChild != null;
 	}
 }

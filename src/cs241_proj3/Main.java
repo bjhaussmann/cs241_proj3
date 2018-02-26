@@ -21,7 +21,7 @@ public class Main {
 		Scanner in = new Scanner(System.in);
 		boolean accepted = false;
 		
-		while (quit)
+		while (!quit)
 		{
 			System.out.println("Please make a selection:");
 			System.out.println("\t1. Insert a new value.");
@@ -36,6 +36,13 @@ public class Main {
 			{
 				try {
 					option = in.nextInt();
+					if (option < 1 || option > 6)
+					{
+						accepted = false;
+					}else
+					{
+						accepted = true;
+					}
 				}catch (NumberFormatException e) {
 					System.out.print("\nInvalid command. Try again: ");
 					accepted = false;
@@ -61,6 +68,7 @@ public class Main {
 				case 5:
 					break;
 				case 6:
+					quit = true;
 					break;
 				default:
 			}
