@@ -3,6 +3,9 @@
  */
 package cs241_proj3;
 
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 /**
  * @author bjhau
  *
@@ -13,8 +16,55 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		int option = 0;
+		boolean quit = false;
+		Scanner in = new Scanner(System.in);
+		boolean accepted = false;
+		
+		while (quit)
+		{
+			System.out.println("Please make a selection:");
+			System.out.println("\t1. Insert a new value.");
+			System.out.println("\t2. Delete a value.");
+			System.out.println("\t3. Print a count of the leaves on both trees.");
+			System.out.println("\t4. Print all values in the tree between two numbers.");
+			System.out.println("\t5. Delete the first 20 values.");
+			System.out.println("\t6. Quit.");
+			System.out.println("Selection: ");
+			
+			while (!accepted)
+			{
+				try {
+					option = in.nextInt();
+				}catch (NumberFormatException e) {
+					System.out.print("\nInvalid command. Try again: ");
+					accepted = false;
+				}
+				catch (InputMismatchException e)
+				{
+					System.out.print("\nInvalid command. Try again: ");
+					in.nextLine();
+					accepted = false;
+				}
+			}
+			
+			switch (option)
+			{
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					break;
+				case 5:
+					break;
+				case 6:
+					break;
+				default:
+			}
+		}
+		in.close();
 	}
-
 }
