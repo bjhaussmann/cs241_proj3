@@ -37,7 +37,7 @@ public class RedBlackNode<T> extends BinaryNode<T> {
 	
 	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean red)
 	{
-		this(data, leftChild, rightChild, red, 0);
+		this(data, leftChild, rightChild, red, 1);
 	}
 	
 	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean red, int size)

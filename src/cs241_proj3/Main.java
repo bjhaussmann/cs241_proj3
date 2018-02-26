@@ -20,6 +20,8 @@ public class Main {
 		boolean quit = false;
 		Scanner in = new Scanner(System.in);
 		boolean accepted = false;
+		RedBlackTree <Integer> rbTree = new RedBlackTree<Integer>();
+		BinarySearchTree <Integer> bsTree = new BinarySearchTree<Integer>();
 		
 		while (!quit)
 		{
@@ -32,13 +34,17 @@ public class Main {
 			System.out.println("\t6. Quit.");
 			System.out.println("Selection: ");
 			
-			while (!accepted)
+			accepted = false;
+			option = 0;
+			
+while (!accepted)
 			{
 				try {
 					option = in.nextInt();
 					if (option < 1 || option > 6)
 					{
 						accepted = false;
+						System.out.println("\nInvalid command. Try again: ");
 					}else
 					{
 						accepted = true;
@@ -58,6 +64,10 @@ public class Main {
 			switch (option)
 			{
 				case 1:
+					System.out.println("Enter integer to be added: ");
+					int next = in.nextInt();
+					rbTree.add(next);
+					bsTree.add(next);
 					break;
 				case 2:
 					break;

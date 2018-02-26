@@ -81,7 +81,10 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	public T add(T newEntry) {
 		T result = null;
 		if (isEmpty())
+		{
 			root = (new RedBlackNode<>(newEntry));
+			calcSize(root);
+		}
 		else
 			result = addEntry(root, newEntry).getData();
 			root.setRed(false);
@@ -91,21 +94,45 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	private RedBlackNode <T> addEntry(RedBlackNode<T> rootNode, T newEntry) {
 		int cmp = newEntry.compareTo(rootNode.getData());
 		if (cmp < 0)
-			rootNode.setLeftChild(addEntry (rootNode.getLeftChild(), newEntry));
-		if(cmp > 0)
-			rootNode.setRightChild(addEntry (rootNode.getRightChild(), newEntry));
+		{
+			if(rootNode.hasLeftChild())
+				rootNode.setLeftChild(addEntry (rootNode.getLeftChild(), newEntry));
+			else rootNode.setLeftChild(new RedBlackNode <T>(newEntry));
+		}
+		else if(cmp > 0)
+		{
+			if(rootNode.hasRightChild())
+				rootNode.setRightChild(addEntry (rootNode.getRightChild(), newEntry));
+			else rootNode.setRightChild(new RedBlackNode <T>(newEntry));
+		}
 		else
 			rootNode.setData(newEntry);
-		
-		if(rootNode.getRightChild().isRed() && !rootNode.getLeftChild().isRed())
-			rootNode = rotateLeft(rootNode);
-		if(rootNode.getLeftChild().isRed() && rootNode.getLeftChild().getLeftChild().isRed())
-			rootNode = rotateLeft(rootNode);
-		if(rootNode.getLeftChild().isRed() && rootNode.getRightChild().isRed())
-			flipColours(rootNode);
-		rootNode.setSize(rootNode.getLeftChild().getSize() + rootNode.getRightChild().getSize() + 1);
+		if(rootNode.hasRightChild() && rootNode.hasLeftChild())
+		{
+			if(rootNode.getRightChild().isRed() && !rootNode.getLeftChild().isRed())
+				rootNode = rotateLeft(rootNode);
+			if(rootNode.getLeftChild().isRed() && rootNode.getRightChild().isRed())
+				flipColours(rootNode);
+	}
+		if (rootNode.hasLeftChild())
+			if(rootNode.getLeftChild().hasLeftChild())
+				if(rootNode.getLeftChild().isRed() && rootNode.getLeftChild().getLeftChild().isRed())
+					rootNode = rotateLeft(rootNode);
+		calcSize(rootNode);
 		
 		return rootNode;
+	}
+	
+	private void calcSize(RedBlackNode <T> node)
+	{
+		if(node.hasLeftChild() && node.hasRightChild())
+			node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
+		if(node.hasLeftChild() && !node.hasRightChild())
+			node.setSize(node.getLeftChild().getSize() + 1);
+		if(!node.hasLeftChild() && node.hasRightChild())
+			node.setSize(node.getRightChild().getSize() + 1);
+		if(!node.hasLeftChild() && !node.hasRightChild())
+			node.setSize(1);
 	}
 	
 	private RedBlackNode <T> rotateLeft (RedBlackNode <T> node)
@@ -117,7 +144,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 		newNode.setRed(newNode.getLeftChild().isRed());
 		newNode.getLeftChild().setRed(true);
 		newNode.setSize(node.getSize());
-		node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
+		calcSize(node);
 		
 		return newNode;
 	}
@@ -212,7 +239,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 			node = rotateRight(node);
 		if(node.getLeftChild().isRed() && node.getRightChild().isRed())
 			flipColours(node);
-		node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
+		calcSize(node);
 		return node;
 	}
 	
@@ -255,7 +282,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 		current.setRed(current.getRightChild().isRed());
 		current.getRightChild().setRed(true);
 		current.setSize(node.getSize());
-		node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
+		calcSize(node);
 		return current;
 	}
 }
