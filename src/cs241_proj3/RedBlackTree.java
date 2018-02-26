@@ -120,7 +120,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 					rootNode = rotateLeft(rootNode);
 		calcSize(rootNode);
 		
-		return rootNode;
+		return balance(rootNode);
 	}
 	
 	private void calcSize(RedBlackNode <T> node)
@@ -223,7 +223,9 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	
 	private RedBlackNode <T> deleteMin (RedBlackNode <T> node)
 	{
-		if(node.getLeftChild()==null)
+		if(!node.hasLeftChild())
+			return null;
+		if(!node.getLeftChild().hasLeftChild())
 			return null;
 		if(!node.getLeftChild().isRed() && !node.getLeftChild().getLeftChild().isRed())
 			node = moveRedLeft(node);
@@ -233,12 +235,16 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	
 	private RedBlackNode <T> balance (RedBlackNode <T> node)
 	{
-		if(node.getRightChild().isRed())
-			node = rotateLeft(node);
-		if(node.getLeftChild().isRed() && node.getLeftChild().getLeftChild().isRed())
-			node = rotateRight(node);
-		if(node.getLeftChild().isRed() && node.getRightChild().isRed())
-			flipColours(node);
+		if(node.hasRightChild())
+			if(node.getRightChild().isRed())
+				node = rotateLeft(node);
+		if (node.hasLeftChild())
+			if(node.getLeftChild().hasLeftChild())
+				if(node.getLeftChild().isRed() && node.getLeftChild().getLeftChild().isRed())
+					node = rotateRight(node);
+		if(node.hasLeftChild() && node.hasRightChild())
+			if(node.getLeftChild().isRed() && node.getRightChild().isRed())
+				flipColours(node);
 		calcSize(node);
 		return node;
 	}

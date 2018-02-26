@@ -70,6 +70,10 @@ while (!accepted)
 					bsTree.add(next);
 					break;
 				case 2:
+					System.out.println("Enter integer to be deleted: ");
+					next = in.nextInt();
+					rbTree.remove(next);
+					bsTree.remove(next);
 					break;
 				case 3:
 					break;
