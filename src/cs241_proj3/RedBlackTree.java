@@ -53,16 +53,13 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	}
 
 	@Override
-	public int getHeight() {
-		int leftMax = 0;
-		int rightMax = 0;
-		int max = 0;
-		if (root.hasLeftChild())
-			leftMax = root.getLeftChild().getHeight();
-		if (root.hasRightChild())
-			rightMax = root.getRightChild().getHeight();
-		max = Math.max(leftMax, rightMax);
-		return max;
+	public int getHeight()
+	{
+		return getHeight(root);
+	}
+	
+	public int getHeight(RedBlackNode <T> node) {
+		return (1 + Math.max(getHeight(node.getLeftChild()), getHeight(node.getRightChild())));
 	}
 
 	@Override
@@ -188,12 +185,77 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 			if(!node.getRightChild().isRed() && !node.getRightChild().getLeftChild().isRed())
 				node = moveRedRight(node);
 			if(entry.compareTo(node.getData()) == 0) {
-				RedBlackNode <T> current = min (node.getData());
-				node.getData() = current.getData();
-				node.getRightChild() = deleteMin(node.getRightChild());
+				RedBlackNode <T> current = min (node.getRightChild());
+				node.setData(current.getData());
+				node.setRightChild(deleteMin(node.getRightChild()));
 			}
-			else node.getRightChild()=remove(node.getRightChild(), entry);
+			else node.setRightChild(remove(node.getRightChild(), entry));
 		}
 		return balance(node);
+	}
+	
+	private RedBlackNode <T> deleteMin (RedBlackNode <T> node)
+	{
+		if(node.getLeftChild()==null)
+			return null;
+		if(!node.getLeftChild().isRed() && !node.getLeftChild().getLeftChild().isRed())
+			node = moveRedLeft(node);
+		node.setLeftChild(deleteMin(node.getLeftChild()));
+		return balance(node);
+	}
+	
+	private RedBlackNode <T> balance (RedBlackNode <T> node)
+	{
+		if(node.getRightChild().isRed())
+			node = rotateLeft(node);
+		if(node.getLeftChild().isRed() && node.getLeftChild().getLeftChild().isRed())
+			node = rotateRight(node);
+		if(node.getLeftChild().isRed() && node.getRightChild().isRed())
+			flipColours(node);
+		node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
+		return node;
+	}
+	
+	private RedBlackNode <T> min(RedBlackNode <T> node)
+	{
+		if(node.getLeftChild() == null)
+			return node;
+		else
+			return min(node.getLeftChild());
+	}
+	
+	private RedBlackNode <T> moveRedLeft (RedBlackNode <T> node)
+	{
+		flipColours(node);
+		if (node.getRightChild().getLeftChild().isRed())
+		{
+			node.setRightChild(rotateRight(node.getRightChild()));
+			node = rotateLeft(node);
+			flipColours(node);
+		}
+		return node;
+	}
+	
+	private RedBlackNode <T> moveRedRight (RedBlackNode <T> node)
+	{
+		flipColours(node);
+		if (node.getLeftChild().getLeftChild().isRed())
+		{
+			node = rotateRight(node);
+			flipColours(node);
+		}
+		return node;
+	}
+	
+	private RedBlackNode <T> rotateRight ( RedBlackNode <T> node)
+	{
+		RedBlackNode <T> current = node.getLeftChild();
+		node.setLeftChild(current.getRightChild());
+		current.setRightChild(node);
+		current.setRed(current.getRightChild().isRed());
+		current.getRightChild().setRed(true);
+		current.setSize(node.getSize());
+		node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
+		return current;
 	}
 }
