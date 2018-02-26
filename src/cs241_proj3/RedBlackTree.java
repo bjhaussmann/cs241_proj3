@@ -166,7 +166,8 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	public T get (RedBlackNode <T> node, T entry)
 	{
 		T result = null;
-		
+		if(node == null)
+			return result;
 		int cmp = entry.compareTo(node.getData());
 		if(cmp < 0)
 			result = get(node.getLeftChild(), entry);
