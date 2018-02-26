@@ -88,6 +88,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 		else
 			result = addEntry(root, newEntry).getData();
 			root.setRed(false);
+			//balance(root);
 		return result;
 	}
 
@@ -139,7 +140,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	{
 		RedBlackNode <T> newNode = node.getRightChild();
 		
-		newNode.setRightChild(node.getLeftChild());
+		node.setRightChild(newNode.getLeftChild());
 		newNode.setLeftChild(node);
 		newNode.setRed(newNode.getLeftChild().isRed());
 		newNode.getLeftChild().setRed(true);
@@ -225,10 +226,9 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	{
 		if(!node.hasLeftChild())
 			return null;
-		if(!node.getLeftChild().hasLeftChild())
-			return null;
-		if(!node.getLeftChild().isRed() && !node.getLeftChild().getLeftChild().isRed())
-			node = moveRedLeft(node);
+		if(node.getLeftChild().hasLeftChild())
+			if(!node.getLeftChild().isRed() && !node.getLeftChild().getLeftChild().isRed())
+				node = moveRedLeft(node);
 		node.setLeftChild(deleteMin(node.getLeftChild()));
 		return balance(node);
 	}
