@@ -8,16 +8,29 @@ package cs241_proj3;
  * @param <T>
  *
  */
-public class RedBlackNode<T> extends BinaryNode<T> {
+public class RedBlackNode<T extends Comparable<? super T>> extends BinaryNode<T> {
 
-	protected boolean red;
+	protected final static int RED = 0;
+	protected final static int BLACK = 1;
+	protected int colour;
 	private int size;
+	protected RedBlackNode<T> parent = (RedBlackNode<T>) super.parent;
+	protected RedBlackNode<T> leftChild = (RedBlackNode<T>) super.leftChild;
+	protected RedBlackNode<T> rightChild = (RedBlackNode<T>) super.rightChild;
+	
 	
 	/**
-	 * @param black the black to set
+	 * @return the parent
 	 */
-	public void setRed(boolean red) {
-		this.red = red;
+	public RedBlackNode<T> getParent() {
+		return parent;
+	}
+
+	/**
+	 * @param parent the parent to set
+	 */
+	public void setParent(RedBlackNode<T> parent) {
+		this.parent = parent;
 	}
 
 	public RedBlackNode()
@@ -32,29 +45,43 @@ public class RedBlackNode<T> extends BinaryNode<T> {
 	
 	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild)
 	{
-		this(data, leftChild, rightChild, true);
+		this(data, leftChild, rightChild, BLACK);
 	}
 	
-	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean red)
+	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, int colour)
 	{
-		this(data, leftChild, rightChild, red, 1);
+		this(data, leftChild, rightChild, colour, 1);
 	}
 	
-	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, boolean red, int size)
+	public RedBlackNode(T data, RedBlackNode<T> leftChild, RedBlackNode<T> rightChild, int colour, int size)
 	{
 		this.data = data;
 		this.leftChild = leftChild;
 		this.rightChild = rightChild;
-		this.red = red;
+		this.colour = colour;
 		this.size = size;
 		
 	}
 	
-	public boolean isRed ()
-	{
-		return red;
+	public RedBlackNode(int i) {
+		Integer iD = i;
+		data = (T) iD;
 	}
-	
+
+	/**
+	 * @return the colour
+	 */
+	public int getColour() {
+		return colour;
+	}
+
+	/**
+	 * @param colour the colour to set
+	 */
+	public void setColour(int colour) {
+		this.colour = colour;
+	}
+
 	/**
 	 * @return the size
 	 */

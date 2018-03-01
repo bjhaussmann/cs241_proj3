@@ -3,293 +3,403 @@
  */
 package cs241_proj3;
 
+import java.util.Scanner;
 
 /**
  * @author bjhau
  *
  */
 public class RedBlackTree<T extends Comparable<? super T>> implements SearchTreeInterface<T> {
+	private final int RED = 0;
+    private final int BLACK = 1;
 
-	private RedBlackNode<T> root;
+    private final RedBlackNode<T> nil = new RedBlackNode<T>(-1); 
+    private RedBlackNode<T> root = nil;
+
+    public void printTree(RedBlackNode<T> node) {
+        if (node == nil) {
+            return;
+        }
+        printTree(node.leftChild);
+        System.out.print(((node.colour==RED)?"Color: Red ":"Color: Black ")+"Key: "+node.data+" Parent: "+node.parent.data+"\n");
+        printTree(node.rightChild);
+    }
+
+    private RedBlackNode<T> findNode(RedBlackNode<T> findNode, RedBlackNode<T> node) {
+        if (root == nil) {
+            return null;
+        }
+
+        if (findNode.data.compareTo(node.data) < 0) {
+            if (node.leftChild != nil) {
+                return findNode(findNode, node.leftChild);
+            }
+        } else if (findNode.data.compareTo(node.data) > 0) {
+            if (node.rightChild != nil) {
+                return findNode(findNode, node.rightChild);
+            }
+        } else if (findNode.data == node.data) {
+            return node;
+        }
+        return null;
+    }
+
+    private void insert(RedBlackNode<T> node) {
+    	RedBlackNode<T> temp = root;
+        if (root == nil) {
+            root = node;
+            node.colour = BLACK;
+            node.parent = nil;
+        } else {
+            node.colour = RED;
+            while (true) {
+                if (node.data.compareTo(temp.data) < 0) {
+                    if (temp.leftChild == nil || temp.leftChild==null) {
+                        temp.leftChild = node;
+                        node.parent = temp;
+                        break;
+                    } else {
+                        temp = temp.leftChild;
+                    }
+                } else if (node.data.compareTo(temp.data) >= 0) {
+                    if (temp.rightChild == nil || temp.rightChild==null) {
+                        temp.rightChild = node;
+                        node.parent = temp;
+                        break;
+                    } else {
+                        temp = temp.rightChild;
+                    }
+                }
+            }
+            fixTree(node);
+        }
+    }
+
+    //Takes as argument the newly inserted node
+    private void fixTree(RedBlackNode<T> node) {
+        while (node.parent.colour == RED) {
+        	RedBlackNode<T> uncle = nil;
+            	if(node.parent.parent != null && node.parent.parent.leftChild != null && node.parent == node.parent.parent.leftChild) {
+	                uncle = node.parent.parent.rightChild;
 	
-	public RedBlackTree() {
-		root = null;
-	}
+	                if (uncle != nil && uncle.colour == RED) {
+	                    node.parent.colour = BLACK;
+	                    uncle.colour = BLACK;
+	                    node.parent.parent.colour = RED;
+	                    node = node.parent.parent;
+	                    continue;
+	                } 
+	                if (node == node.parent.rightChild) {
+	                    //Double rotation needed
+	                    node = node.parent;
+	                    rotateLeft(node);
+	                } 
+	                node.parent.colour = BLACK;
+	                node.parent.parent.colour = RED;
+	                //if the "else if" code hasn't executed, this
+	                //is a case where we only need a single rotation 
+	                rotateRight(node.parent.parent);
+            } else {
+                uncle = node.parent.parent.leftChild;
+                 if (uncle != nil && uncle.colour == RED) {
+                    node.parent.colour = BLACK;
+                    uncle.colour = BLACK;
+                    node.parent.parent.colour = RED;
+                    node = node.parent.parent;
+                    continue;
+                }
+                if (node == node.parent.leftChild) {
+                    //Double rotation needed
+                    node = node.parent;
+                    rotateRight(node);
+                }
+                node.parent.colour = BLACK;
+                node.parent.parent.colour = RED;
+                //if the "else if" code hasn't executed, this
+                //is a case where we only need a single rotation
+                rotateLeft(node.parent.parent);
+            }
+        }
+        root.colour = BLACK;
+    }
 
-	public RedBlackTree(T root) {
-		this.root = new RedBlackNode<>(root);
-	}
+    void rotateLeft(RedBlackNode<T> node) {
+        if (node.parent != nil) {
+            if (node == node.parent.leftChild) {
+                node.parent.leftChild = node.rightChild;
+            } else {
+                node.parent.rightChild = node.rightChild;
+            }
+            node.rightChild.parent = node.parent;
+            node.parent = node.rightChild;
+            if (node.rightChild.leftChild != nil) {
+                node.rightChild.leftChild.parent = node;
+            }
+            node.rightChild = node.rightChild.leftChild;
+            node.parent.leftChild = node;
+        } else {//Need to rotate root
+        	RedBlackNode<T> right = root.rightChild;
+            root.rightChild = right.leftChild;
+            right.leftChild.parent = root;
+            root.parent = right;
+            right.leftChild = root;
+            right.parent = nil;
+            root = right;
+        }
+    }
 
-	public RedBlackTree(T root, RedBlackTree<T> left, RedBlackTree<T> right) {
-		privateSetTree(root, left, right);
-	}
-	
-	/**
-	 * Creates a new tree with the given root and subtrees
-	 * @param root	Root of the tree
-	 * @param left	Left child of the root
-	 * @param right	Right child of the root
-	 */
-	private void privateSetTree(T root, RedBlackTree<T> left, RedBlackTree<T> right) {
-		this.root = new RedBlackNode<>(root);
+    void rotateRight(RedBlackNode<T> node) {
+        if (node.parent != nil) {
+            if (node == node.parent.leftChild) {
+                node.parent.leftChild = node.leftChild;
+            } else {
+                node.parent.rightChild = node.leftChild;
+            }
 
-		if ((left != null) && !left.isEmpty())
-			this.root.setLeftChild(left.root.copy());
-		if ((right != null) && !right.isEmpty()) {
-			if (right != left)
-				this.root.setRightChild(right.root);
-			else
-				this.root.setRightChild(right.root.copy());
-		}
-		if ((left != null) && (left != this))
-			left.clear();
-		if ((right != null) && (right != this))
-			right.clear();
-	}
-	
+            node.leftChild.parent = node.parent;
+            node.parent = node.leftChild;
+            if (node.leftChild.rightChild != nil) {
+                node.leftChild.rightChild.parent = node;
+            }
+            node.leftChild = node.leftChild.rightChild;
+            node.parent.rightChild = node;
+        } else {//Need to rotate root
+        	RedBlackNode<T> left = root.leftChild;
+            root.leftChild = root.leftChild.rightChild;
+            left.rightChild.parent = root;
+            root.parent = left;
+            left.rightChild = root;
+            left.parent = nil;
+            root = left;
+        }
+    }
+    
+    //Deletion Code .
+    
+    //This operation doesn't care about the new Node's connections
+    //with previous node's left and right. The caller has to take care
+    //of that.
+    void transplant(RedBlackNode<T> target, RedBlackNode<T> with){ 
+          if(target.parent == nil){
+              root = with;
+          }else if(target == target.parent.leftChild){
+              target.parent.leftChild = with;
+          }else
+              target.parent.rightChild = with;
+          with.parent = target.parent;
+    }
+    
+    boolean delete(RedBlackNode<T> z){
+        if((z = findNode(z, root))==null)return false;
+        RedBlackNode<T> x;
+        RedBlackNode<T> y = z; // temporary reference y
+        int y_original_color = y.colour;
+        
+        if(z.leftChild == nil){
+            x = z.rightChild;  
+            transplant(z, z.rightChild);  
+        }else if(z.rightChild == nil){
+            x = z.leftChild;
+            transplant(z, z.leftChild); 
+        }else{
+            y = treeMinimum(z.rightChild);
+            y_original_color = y.colour;
+            x = y.rightChild;
+            if(y.parent == z)
+                x.parent = y;
+            else{
+                transplant(y, y.rightChild);
+                y.rightChild = z.rightChild;
+                y.rightChild.parent = y;
+            }
+            transplant(z, y);
+            y.leftChild = z.leftChild;
+            y.leftChild.parent = y;
+            y.colour = z.colour; 
+        }
+        if(y_original_color==BLACK)
+            deleteFixup(x);  
+        return true;
+    }
+    
+    void deleteFixup(RedBlackNode<T> x){
+        while(x!=root && x.colour == BLACK){ 
+            if(x == x.parent.leftChild){
+            	RedBlackNode<T> w = x.parent.rightChild;
+                if(w.colour == RED){
+                    w.colour = BLACK;
+                    x.parent.colour = RED;
+                    rotateLeft(x.parent);
+                    w = x.parent.rightChild;
+                }
+                if(w.leftChild.colour == BLACK && w.rightChild.colour == BLACK){
+                    w.colour = RED;
+                    x = x.parent;
+                    continue;
+                }
+                else if(w.rightChild.colour == BLACK){
+                    w.leftChild.colour = BLACK;
+                    w.colour = RED;
+                    rotateRight(w);
+                    w = x.parent.rightChild;
+                }
+                if(w.rightChild.colour == RED){
+                    w.colour = x.parent.colour;
+                    x.parent.colour = BLACK;
+                    w.rightChild.colour = BLACK;
+                    rotateLeft(x.parent);
+                    x = root;
+                }
+            }else{
+            	RedBlackNode<T> w = x.parent.leftChild;
+                if(w.colour == RED){
+                    w.colour = BLACK;
+                    x.parent.colour = RED;
+                    rotateRight(x.parent);
+                    w = x.parent.leftChild;
+                }
+                if(w.rightChild.colour == BLACK && w.leftChild.colour == BLACK){
+                    w.colour = RED;
+                    x = x.parent;
+                    continue;
+                }
+                else if(w.leftChild.colour == BLACK){
+                    w.rightChild.colour = BLACK;
+                    w.colour = RED;
+                    rotateLeft(w);
+                    w = x.parent.leftChild;
+                }
+                if(w.leftChild.colour == RED){
+                    w.colour = x.parent.colour;
+                    x.parent.colour = BLACK;
+                    w.leftChild.colour = BLACK;
+                    rotateRight(x.parent);
+                    x = root;
+                }
+            }
+        }
+        x.colour = BLACK; 
+    }
+    
+    RedBlackNode <T> treeMinimum(RedBlackNode<T> subTreeRoot){
+        while(subTreeRoot.leftChild!=nil){
+            subTreeRoot = subTreeRoot.leftChild;
+        }
+        return subTreeRoot;
+    }
+    
+    /*public void consoleUI() {
+        Scanner scan = new Scanner(System.in);
+        while (true) {
+            System.out.println("\n1.- Add items\n"
+                    + "2.- Delete items\n"
+                    + "3.- Check items\n"
+                    + "4.- Print tree\n"
+                    + "5.- Delete tree\n");
+            int choice = scan.nextInt();
+
+            int item;
+            RedBlackNode<T> node;
+            switch (choice) {
+                case 1:
+                    item = scan.nextInt();
+                    while (item != -999) {
+                        node = new RedBlackNode<T>(item);
+                        insert(node);
+                        item = scan.nextInt();
+                    }
+                    printTree(root);
+                    break;
+                case 2:
+                    item = scan.nextInt();
+                    while (item != -999) {
+                        node = new RedBlackNode<T>(item);
+                        System.out.print("\nDeleting item " + item);
+                        if (delete(node)) {
+                            System.out.print(": deleted!");
+                        } else {
+                            System.out.print(": does not exist!");
+                        }
+                        item = scan.nextInt();
+                    }
+                    System.out.println();
+                    printTree(root);
+                    break;
+                case 3:
+                    item = scan.nextInt();
+                    while (item != -999) {
+                        node = new RedBlackNode<T>(item);
+                        System.out.println((findNode(node, root) != null) ? "found" : "not found");
+                        item = scan.nextInt();
+                    }
+                    break;
+                case 4:
+                    printTree(root);
+                    break;
+                case 5:
+                    clear();
+                    System.out.println("Tree deleted!");
+                    break;
+            }
+        }
+    }
+    public static void main(String[] args) {
+        RedBlackTree rbt = new RedBlackTree();
+        rbt.consoleUI();
+    }*/
+
 	@Override
 	public void clear() {
-		root = null;
+		root = nil;
 	}
 
 	@Override
-	public int getHeight()
-	{
-		return getHeight(root);
-	}
-	
-	public int getHeight(RedBlackNode <T> node) {
-		return (1 + Math.max(getHeight(node.getLeftChild()), getHeight(node.getRightChild())));
+	public int getHeight() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public int getNumberOfNodes() {
-		return root.getSize();
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public T getRootData() {
-		return root.getData();
+		return root.data;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return (root == null);
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
 	public T add(T newEntry) {
-		T result = null;
-		if (isEmpty())
-		{
-			root = (new RedBlackNode<>(newEntry));
-			calcSize(root);
-		}
-		else
-			result = addEntry(root, newEntry).getData();
-			root.setRed(false);
-			//balance(root);
-		return result;
+		RedBlackNode<T>node = new RedBlackNode<T>(newEntry);
+        insert(node);
+		return newEntry;
 	}
 
-	private RedBlackNode <T> addEntry(RedBlackNode<T> rootNode, T newEntry) {
-		int cmp = newEntry.compareTo(rootNode.getData());
-		if (cmp < 0)
-		{
-			if(rootNode.hasLeftChild())
-				rootNode.setLeftChild(addEntry (rootNode.getLeftChild(), newEntry));
-			else rootNode.setLeftChild(new RedBlackNode <T>(newEntry));
-		}
-		else if(cmp > 0)
-		{
-			if(rootNode.hasRightChild())
-				rootNode.setRightChild(addEntry (rootNode.getRightChild(), newEntry));
-			else rootNode.setRightChild(new RedBlackNode <T>(newEntry));
-		}
-		else
-			rootNode.setData(newEntry);
-		if(rootNode.hasRightChild() && rootNode.hasLeftChild())
-		{
-			if(rootNode.getRightChild().isRed() && !rootNode.getLeftChild().isRed())
-				rootNode = rotateLeft(rootNode);
-			if(rootNode.getLeftChild().isRed() && rootNode.getRightChild().isRed())
-				flipColours(rootNode);
-	}
-		if (rootNode.hasLeftChild())
-			if(rootNode.getLeftChild().hasLeftChild())
-				if(rootNode.getLeftChild().isRed() && rootNode.getLeftChild().getLeftChild().isRed())
-					rootNode = rotateLeft(rootNode);
-		calcSize(rootNode);
-		
-		return balance(rootNode);
-	}
-	
-	private void calcSize(RedBlackNode <T> node)
-	{
-		if(node.hasLeftChild() && node.hasRightChild())
-			node.setSize(node.getLeftChild().getSize() + node.getRightChild().getSize() + 1);
-		if(node.hasLeftChild() && !node.hasRightChild())
-			node.setSize(node.getLeftChild().getSize() + 1);
-		if(!node.hasLeftChild() && node.hasRightChild())
-			node.setSize(node.getRightChild().getSize() + 1);
-		if(!node.hasLeftChild() && !node.hasRightChild())
-			node.setSize(1);
-	}
-	
-	private RedBlackNode <T> rotateLeft (RedBlackNode <T> node)
-	{
-		RedBlackNode <T> newNode = node.getRightChild();
-		
-		node.setRightChild(newNode.getLeftChild());
-		newNode.setLeftChild(node);
-		newNode.setRed(newNode.getLeftChild().isRed());
-		newNode.getLeftChild().setRed(true);
-		newNode.setSize(node.getSize());
-		calcSize(node);
-		
-		return newNode;
-	}
-	
-	private RedBlackNode <T> flipColours (RedBlackNode<T> node)
-	{
-		node.setRed(!node.isRed());
-		node.getLeftChild().setRed(!node.getLeftChild().isRed());
-		node.getRightChild().setRed(!node.getRightChild().isRed());
-		return node;
-	}
-	
 	@Override
 	public boolean contains(T entry) {
-		return getEntry(entry) != null;
-	}
-	
-	public T get (RedBlackNode <T> node, T entry)
-	{
-		T result = null;
-		if(node == null)
-			return result;
-		int cmp = entry.compareTo(node.getData());
-		if(cmp < 0)
-			result = get(node.getLeftChild(), entry);
-		else if (cmp > 0)
-			result = get(node.getRightChild(), entry);
-		else 
-			result = node.getData();
-		return result;
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
 	public T getEntry(T entry) {
-		return get(root, entry);
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public T remove(T entry) {
-		if (!contains(entry))
-			return null;
-		
-		if(!root.getLeftChild().isRed() && !root.getRightChild().isRed())
-			root.setRed(true);
-		
-		root = remove(root, entry);
-		if(!isEmpty())
-			root.setRed(false);
-		
-		return entry;
-	}
-	
-	private RedBlackNode <T> remove(RedBlackNode<T> node, T entry)
-	{
-		if(entry.compareTo(node.getData()) < 0) {
-			if (!node.getLeftChild().isRed() && !node.getLeftChild().getLeftChild().isRed()) {
-				node = moveRedLeft(node);
-			}
-			node.setLeftChild(remove(node.getLeftChild(), entry));
-		}
-		else {
-			if(node.getLeftChild().isRed())
-				node = rotateRight(node);
-			if(entry.compareTo(node.getData()) == 0 && (node.getRightChild() == null))
-				return null;
-			if(!node.getRightChild().isRed() && !node.getRightChild().getLeftChild().isRed())
-				node = moveRedRight(node);
-			if(entry.compareTo(node.getData()) == 0) {
-				RedBlackNode <T> current = min (node.getRightChild());
-				node.setData(current.getData());
-				node.setRightChild(deleteMin(node.getRightChild()));
-			}
-			else node.setRightChild(remove(node.getRightChild(), entry));
-		}
-		return balance(node);
-	}
-	
-	private RedBlackNode <T> deleteMin (RedBlackNode <T> node)
-	{
-		if(!node.hasLeftChild())
-			return null;
-		if(node.getLeftChild().hasLeftChild())
-			if(!node.getLeftChild().isRed() && !node.getLeftChild().getLeftChild().isRed())
-				node = moveRedLeft(node);
-		node.setLeftChild(deleteMin(node.getLeftChild()));
-		return balance(node);
-	}
-	
-	private RedBlackNode <T> balance (RedBlackNode <T> node)
-	{
-		if(node.hasRightChild())
-			if(node.getRightChild().isRed())
-				node = rotateLeft(node);
-		if (node.hasLeftChild())
-			if(node.getLeftChild().hasLeftChild())
-				if(node.getLeftChild().isRed() && node.getLeftChild().getLeftChild().isRed())
-					node = rotateRight(node);
-		if(node.hasLeftChild() && node.hasRightChild())
-			if(node.getLeftChild().isRed() && node.getRightChild().isRed())
-				flipColours(node);
-		calcSize(node);
-		return node;
-	}
-	
-	private RedBlackNode <T> min(RedBlackNode <T> node)
-	{
-		if(node.getLeftChild() == null)
-			return node;
-		else
-			return min(node.getLeftChild());
-	}
-	
-	private RedBlackNode <T> moveRedLeft (RedBlackNode <T> node)
-	{
-		flipColours(node);
-		if (node.getRightChild().getLeftChild().isRed())
-		{
-			node.setRightChild(rotateRight(node.getRightChild()));
-			node = rotateLeft(node);
-			flipColours(node);
-		}
-		return node;
-	}
-	
-	private RedBlackNode <T> moveRedRight (RedBlackNode <T> node)
-	{
-		flipColours(node);
-		if (node.getLeftChild().getLeftChild().isRed())
-		{
-			node = rotateRight(node);
-			flipColours(node);
-		}
-		return node;
-	}
-	
-	private RedBlackNode <T> rotateRight ( RedBlackNode <T> node)
-	{
-		RedBlackNode <T> current = node.getLeftChild();
-		node.setLeftChild(current.getRightChild());
-		current.setRightChild(node);
-		current.setRed(current.getRightChild().isRed());
-		current.getRightChild().setRed(true);
-		current.setSize(node.getSize());
-		calcSize(node);
-		return current;
+		RedBlackNode<T> node = new RedBlackNode<T>(entry);
+		if (delete(node))
+			return entry;
+		else return null;
 	}
 }

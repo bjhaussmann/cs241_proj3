@@ -72,7 +72,8 @@ while (!accepted)
 				case 2:
 					System.out.println("Enter integer to be deleted: ");
 					next = in.nextInt();
-					rbTree.remove(next);
+					if (rbTree.remove(next) == null)
+						System.out.println("Item was not in tree!");
 					bsTree.remove(next);
 					break;
 				case 3:

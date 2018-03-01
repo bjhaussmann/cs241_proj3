@@ -12,6 +12,7 @@ public class BinaryNode<T> {
 	protected T data;
 	protected BinaryNode<T> leftChild;
 	protected BinaryNode<T> rightChild;
+	protected BinaryNode<T> parent;
 
 	public BinaryNode() {
 		this(null);
