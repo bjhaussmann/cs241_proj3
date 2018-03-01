@@ -100,24 +100,28 @@ public class RedBlackTree<T extends Comparable<? super T>> implements SearchTree
 	                //is a case where we only need a single rotation 
 	                rotateRight(node.parent.parent);
             } else {
-                uncle = node.parent.parent.leftChild;
-                 if (uncle != nil && uncle.colour == RED) {
-                    node.parent.colour = BLACK;
-                    uncle.colour = BLACK;
-                    node.parent.parent.colour = RED;
-                    node = node.parent.parent;
-                    continue;
-                }
-                if (node == node.parent.leftChild) {
+            	if(node.parent != null && node.parent.parent != null && node.parent.parent.leftChild != null) {
+	                uncle = node.parent.parent.leftChild;
+	                 if (uncle != nil && uncle.colour == RED && uncle != null) {
+	                    node.parent.colour = BLACK;
+	                    uncle.colour = BLACK;
+	                    node.parent.parent.colour = RED;
+	                    node = node.parent.parent;
+	                    continue;
+	                }
+            	}
+                if (node.parent != null && node.parent.leftChild != null && node == node.parent.leftChild) {
                     //Double rotation needed
                     node = node.parent;
                     rotateRight(node);
                 }
                 node.parent.colour = BLACK;
-                node.parent.parent.colour = RED;
+                if ( node.parent.parent != null)
+                	node.parent.parent.colour = RED;
                 //if the "else if" code hasn't executed, this
                 //is a case where we only need a single rotation
-                rotateLeft(node.parent.parent);
+                if ( node.parent.parent != null)
+                	rotateLeft(node.parent.parent);
             }
         }
         root.colour = BLACK;
